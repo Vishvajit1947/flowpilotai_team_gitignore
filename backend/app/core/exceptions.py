@@ -38,6 +38,8 @@ class ConflictError(FlowPilotException):
         super().__init__(message, status_code=409)
 
 
+# ─── Exception Handlers ───────────────────────────────────────────────────────
+
 async def flowpilot_exception_handler(
     request: Request, exc: FlowPilotException
 ) -> JSONResponse:

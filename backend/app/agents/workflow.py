@@ -58,110 +58,109 @@ async def ocr_node(state: AgentState) -> dict[str, Any]:
 
 
 async def intent_node(state: AgentState) -> dict[str, Any]:
-    """Detect intent from content."""
-    content = state.get("content", "")
-    file_text = state.get("file_text")
-
+    """Detect intent using intent service (caching/LLM fallback)."""
+    text = state.get("file_text") or state.get("content")
     try:
-        result = await detect_intent(content, file_context=file_text)
+        decision = await detect_intent(text)
         return {
-            "detected_intent": result.intent,
-            "intent_reasoning": result.reasoning,
-            "intent_from_cache": result.from_cache,
-            **add_step(state, "intent_node", {
-                "intent": result.intent,
-                "from_cache": result.from_cache,
-            }),
+            "detected_intent": decision.intent,
+            **add_step(
+                state,
+                "intent_node",
+                {"intent": decision.intent, "reasoning": decision.reasoning, "from_cache": decision.from_cache},
+            ),
         }
     except Exception as exc:
         logger.error("intent_node_failed", error=str(exc))
         return {
             "detected_intent": "unknown",
-            "intent_reasoning": f"Error: {str(exc)}",
-            "intent_from_cache": False,
-            **add_step(state, "intent_node", {}, error=str(exc)),
+            **add_step(state, "intent_node", {"intent": "unknown"}, error=str(exc)),
         }
 
 
 async def confidence_node(state: AgentState) -> dict[str, Any]:
-    """Compute confidence score for detected intent."""
-    content = state.get("content", "")
+    """Calculate confidence score of submission."""
+    text = state.get("file_text") or state.get("content")
     intent = state.get("detected_intent") or "unknown"
-    file_text = state.get("file_text")
-
     try:
-        score = await compute_confidence(content, intent, file_context=file_text)
+        decision = await compute_confidence(text, intent)
         return {
-            "confidence_score": score,
-            **add_step(state, "confidence_node", {"score": score, "intent": intent}),
+            "confidence_score": decision.score,
+            **add_step(
+                state,
+                "confidence_node",
+                {"score": decision.score, "reasoning": decision.reasoning, "from_cache": decision.from_cache},
+            ),
         }
     except Exception as exc:
         logger.error("confidence_node_failed", error=str(exc))
         return {
-            "confidence_score": 0.5,
-            **add_step(state, "confidence_node", {}, error=str(exc)),
+            "confidence_score": 0.0,
+            **add_step(state, "confidence_node", {"score": 0.0}, error=str(exc)),
         }
 
 
 async def router_node(state: AgentState) -> dict[str, Any]:
-    """Route to appropriate agent based on intent and confidence."""
+    """Determine the correct agent path and whether escalation is needed."""
     intent = state.get("detected_intent") or "unknown"
-    confidence = state.get("confidence_score", 0.5) or 0.5
-
+    score = state.get("confidence_score") or 0.0
     try:
-        decision = route(intent, confidence)
+        decision = route(intent, score)
         return {
-            "assigned_agent": decision.agent_type,
+            "assigned_agent": decision.agent,
             "escalated": decision.escalated,
-            "routing_reason": decision.reason,
-            "confidence_tier": decision.confidence_tier,
-            **add_step(state, "router_node", {
-                "agent": decision.agent_type.value,
-                "escalated": decision.escalated,
-                "tier": decision.confidence_tier,
-            }),
+            **add_step(
+                state,
+                "router_node",
+                {"agent": decision.agent.value if decision.agent else None, "escalated": decision.escalated},
+            ),
         }
     except Exception as exc:
         logger.error("router_node_failed", error=str(exc))
+        # Default fallback is executive agent
         return {
             "assigned_agent": AgentType.executive,
             "escalated": True,
-            "routing_reason": f"Routing error: {str(exc)}",
-            "confidence_tier": "low",
-            **add_step(state, "router_node", {}, error=str(exc)),
+            **add_step(
+                state,
+                "router_node",
+                {"agent": "executive", "escalated": True},
+                error=str(exc),
+            ),
         }
 
 
 async def persist_node(state: AgentState, db: AsyncSession) -> dict[str, Any]:
-    """Persist workflow results to the database."""
-    from sqlalchemy import select
-    import uuid as _uuid
-
+    """Write intermediate and final results to database."""
     submission_id = state.get("submission_id")
     if not submission_id:
-        return {"final_status": "failed", "error_message": "No submission_id in state"}
+        return {}
 
     try:
-        result = await db.execute(
-            select(InboxSubmission).where(
-                InboxSubmission.id == _uuid.UUID(submission_id)
-            )
+        from sqlalchemy import select
+        res = await db.execute(
+            select(InboxSubmission).where(InboxSubmission.id == submission_id)
         )
-        submission = result.scalar_one()
+        submission = res.scalar_one()
 
-        agent_error = state.get("agent_error")
-        if agent_error:
-            submission.status = WorkflowStatus.failed
-            submission.error_message = agent_error
-            final_status = "failed"
+        # Update metadata fields
+        submission.detected_intent = state.get("detected_intent")
+        submission.confidence_score = state.get("confidence_score")
+        submission.assigned_agent = state.get("assigned_agent")
+        submission.error_message = state.get("error_message")
+
+        # Determine status
+        agent_resp = state.get("agent_response")
+        if agent_resp:
+            # If agent response is present, mark as completed
+            final_status = WorkflowStatus.completed
+        elif state.get("error_message"):
+            final_status = WorkflowStatus.failed
         else:
-            submission.status = WorkflowStatus.completed
-            submission.detected_intent = state.get("detected_intent")
-            submission.confidence_score = state.get("confidence_score")
-            submission.assigned_agent = state.get("assigned_agent")
-            submission.result = state_to_result(state)
-            submission.error_message = None
-            final_status = "completed"
+            final_status = WorkflowStatus.processing
+
+        submission.status = final_status
+        submission.result = state_to_result(state)
 
         await db.commit()
         logger.info(
@@ -172,7 +171,7 @@ async def persist_node(state: AgentState, db: AsyncSession) -> dict[str, Any]:
 
         return {
             "final_status": final_status,
-            **add_step(state, "persist_node", {"final_status": final_status}),
+            **add_step(state, "persist_node", {"final_status": final_status.value}),
         }
 
     except Exception as exc:

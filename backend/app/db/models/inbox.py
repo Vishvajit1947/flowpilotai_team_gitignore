@@ -1,17 +1,17 @@
 import uuid
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from sqlalchemy import (
     String,
     Text,
     Float,
     Enum as SAEnum,
     ForeignKey,
+    JSON,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 import enum
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.db.models.user import User
@@ -74,7 +74,7 @@ class InboxSubmission(Base):
         index=True,
     )
     result: Mapped[dict[str, Any] | None] = mapped_column(
-        JSONB,
+        JSONB().with_variant(JSON, "sqlite"),
         nullable=True,
     )
     error_message: Mapped[str | None] = mapped_column(

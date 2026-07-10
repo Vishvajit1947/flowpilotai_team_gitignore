@@ -3,27 +3,42 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export interface UIState {
-  theme: 'light' | 'dark' | 'system';
+interface UIState {
   sidebarOpen: boolean;
-  sidebarCollapsed: boolean;
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
-  setSidebarOpen: (open: boolean) => void;
-  toggleSidebarCollapsed: () => void;
+  sidebarCollapsed: boolean; // desktop collapse to icon-only
+  theme: 'light' | 'dark' | 'system';
 }
 
-export const useUIStore = create<UIState>()(
+interface UIActions {
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebarCollapsed: () => void;
+  setTheme: (theme: UIState['theme']) => void;
+}
+
+export const useUIStore = create<UIState & UIActions>()(
   persist(
     (set) => ({
-      theme: 'system',
       sidebarOpen: false,
       sidebarCollapsed: false,
+      theme: 'system',
+
+      setSidebarOpen: (open) => set({ sidebarOpen: open }),
+      toggleSidebar: () =>
+        set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+      setSidebarCollapsed: (collapsed) =>
+        set({ sidebarCollapsed: collapsed }),
+      toggleSidebarCollapsed: () =>
+        set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       setTheme: (theme) => set({ theme }),
-      setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
-      toggleSidebarCollapsed: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
     }),
     {
       name: 'flowpilot-ui',
-    }
-  )
+      partialize: (state) => ({
+        sidebarCollapsed: state.sidebarCollapsed,
+        theme: state.theme,
+      }),
+    },
+  ),
 );
