@@ -62,7 +62,7 @@ export default function LandingPage() {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen flex flex-col bg-white text-[#001e2b] overflow-x-hidden selection:bg-[#00ed64] selection:text-[#001e2b]"
+      className="relative w-full min-h-screen flex flex-col bg-white text-[#001e2b] overflow-hidden selection:bg-[#00ed64] selection:text-[#001e2b]"
     >
       {/* ── Background Grid & Parallax Orbs ────────────────────────────── */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e1e5e8_1px,transparent_1px),linear-gradient(to_bottom,#e1e5e8_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-60 pointer-events-none" />
@@ -83,7 +83,7 @@ export default function LandingPage() {
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-[#e1e5e8]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-[#00ed64] flex items-center justify-center text-[#001e2b] font-bold text-lg shadow-md shadow-[#00ed64]/10">
               F
@@ -122,8 +122,8 @@ export default function LandingPage() {
       </header>
 
       {/* ── Hero Section with 3D Mouse Parallax ────────────────────────── */}
-      <section className="relative flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center z-10">
-        <div className="space-y-6 text-left">
+      <section className="relative flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 grid md:grid-cols-2 gap-8 items-center z-10">
+        <div className="space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f9fbfa] border border-[#e1e5e8] text-xs font-semibold text-[#00684a] backdrop-blur shadow-sm">
             <Sparkles className="h-3.5 w-3.5 text-[#00ed64]" /> Introducing FlowPilot Orchestrator v1.0
           </div>
@@ -135,13 +135,13 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-600 max-w-lg leading-relaxed">
+          <p className="text-base sm:text-lg text-gray-600 max-w-md leading-relaxed">
             Automatically classify documents, extract intelligence, and route workflows to specialized AI agents—all in one secure, integrated workspace.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full justify-center md:justify-start">
             {hydrated && isAuthenticated ? (
-              <Button asChild size="lg" className="text-base px-8">
+              <Button asChild size="lg" className="text-base px-8 w-full sm:w-auto">
                 <Link
                   href={'/dashboard' as Route}
                   className="inline-flex items-center gap-2"
@@ -154,7 +154,7 @@ export default function LandingPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="text-base px-8 bg-[#00ed64] text-[#001e2b] hover:bg-[#00b545] shadow-lg shadow-[#00ed64]/10"
+                  className="text-base px-8 bg-[#00ed64] text-[#001e2b] hover:bg-[#00b545] shadow-lg shadow-[#00ed64]/10 w-full sm:w-auto"
                 >
                   <Link
                     href={'/register' as Route}
@@ -167,7 +167,7 @@ export default function LandingPage() {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="text-base px-8 border-[#c1ccd6] text-[#001e2b] hover:bg-[#f9fbfa]"
+                  className="text-base px-8 border-[#c1ccd6] text-[#001e2b] hover:bg-[#f9fbfa] w-full sm:w-auto"
                 >
                   <Link href={'/login' as Route}>Sign In</Link>
                 </Button>
@@ -178,7 +178,7 @@ export default function LandingPage() {
 
         {/* ── Interactive 3D Mockup Card ──────────────────────────────── */}
         <div
-          className="flex justify-center items-center cursor-default perspective-1000"
+          className="flex justify-center items-center cursor-default perspective-1000 w-full"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -190,7 +190,7 @@ export default function LandingPage() {
               transformStyle: 'preserve-3d',
             }}
             transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-            className="w-full max-w-[450px] bg-white border border-[#e1e5e8] rounded-2xl shadow-xl p-6 space-y-6 relative overflow-hidden"
+            className="w-full max-w-[420px] bg-white border border-[#e1e5e8] rounded-2xl shadow-xl p-6 space-y-6 relative overflow-hidden"
           >
             {/* Card internal glowing mesh */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#00ed64]/10 to-transparent rounded-full pointer-events-none" />
@@ -271,7 +271,7 @@ export default function LandingPage() {
 
       {/* ── Core Pipeline Flow Demonstration (Visual Cards) ──────────────── */}
       <section className="bg-[#f9fbfa] py-24 px-4 sm:px-6 lg:px-8 border-t border-[#e1e5e8] relative">
-        <div className="max-w-7xl mx-auto space-y-16">
+        <div className="max-w-6xl mx-auto space-y-16">
           <div className="text-center space-y-4">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#001e2b]">
               End-to-End Orchestration Flow
@@ -281,7 +281,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
             <Card className="bg-white border-[#e1e5e8] text-[#001e2b] rounded-xl relative group hover:border-[#00ed64]/50 transition-colors shadow-sm">
               <CardContent className="p-6 space-y-4">
                 <div className="h-12 w-12 rounded-lg bg-[#00ed64]/10 flex items-center justify-center text-[#00684a]">
@@ -343,7 +343,7 @@ export default function LandingPage() {
 
       {/* ── Specialized AI Agents Section (Pure Code Custom Visuals) ───── */}
       <section className="bg-white py-24 px-4 sm:px-6 lg:px-8 border-t border-[#e1e5e8]">
-        <div className="max-w-7xl mx-auto space-y-16">
+        <div className="max-w-6xl mx-auto space-y-16">
           <div className="text-center space-y-4">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#001e2b]">
               Specialized AI Agents
@@ -353,7 +353,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="border border-[#e1e5e8] bg-[#f9fbfa]/85 p-6 rounded-2xl text-center space-y-4 hover:border-[#00ed64]/50 transition-colors shadow-sm">
               <div className="mx-auto h-12 w-12 rounded-full bg-[#00ed64]/15 flex items-center justify-center text-[#00684a]">
                 <TrendingUp className="h-5 w-5" />
@@ -411,7 +411,7 @@ export default function LandingPage() {
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer className="bg-[#f9fbfa] border-t border-[#e1e5e8] py-12 text-center text-xs text-gray-500">
-        <div className="max-w-7xl mx-auto px-4 space-y-4">
+        <div className="max-w-6xl mx-auto px-4 space-y-4">
           <div className="flex justify-center items-center gap-2">
             <div className="h-5 w-5 rounded bg-[#00ed64] flex items-center justify-center text-[#001e2b] font-bold text-xs">
               F
