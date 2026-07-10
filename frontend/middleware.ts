@@ -19,7 +19,7 @@ export function middleware(request: NextRequest): NextResponse {
   const token = request.cookies.get('flowpilot-token')?.value;
 
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
-  const isPublicRoute = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
+  const isPublicRoute = pathname === '/' || PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
 
   // Logged-in user visiting login/register → redirect to dashboard
   if (isAuthRoute && token) {
