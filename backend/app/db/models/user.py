@@ -1,9 +1,14 @@
+from __future__ import annotations
 import uuid
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Boolean, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 import enum
+
+if TYPE_CHECKING:
+    from app.db.models.inbox import InboxSubmission
 
 
 class UserRole(str, enum.Enum):

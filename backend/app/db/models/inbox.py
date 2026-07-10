@@ -1,5 +1,6 @@
+from __future__ import annotations
 import uuid
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from sqlalchemy import (
     String,
     Text,
@@ -12,6 +13,9 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 import enum
+
+if TYPE_CHECKING:
+    from app.db.models.user import User
 
 
 class AgentType(str, enum.Enum):
