@@ -4,7 +4,16 @@ LangGraph Agent State
 The AgentState TypedDict is the shared state object passed between
 all nodes in the LangGraph workflow graph. Fields are added progressively
 as the workflow executes.
+
+State evolution:
+  Submission →
+    [intent_node] adds: detected_intent, intent_reasoning →
+    [confidence_node] adds: confidence_score →
+    [router_node] adds: assigned_agent, escalated, routing_reason →
+    [agent_node] adds: agent_response, agent_error →
+    [persist_node] updates DB
 """
+from __future__ import annotations
 import operator
 from typing import Annotated, Any, Optional, TypedDict
 from app.db.models.inbox import AgentType
@@ -83,7 +92,7 @@ def initial_state(
     )
 
 
-def add_step(state: AgentState, step_name: str, data: dict[str, Any], error: Optional[str] = None) -> dict:
+def add_step(state: AgentState, step_name: str, data: dict[str, Any], error: Optional[str] = None) -> dict[str, Any]:
     """
     Return a state update dict that appends a step to the audit trail.
     Usage: return { **add_step(state, "intent_node", {...}), "detected_intent": "sales_lead" }
@@ -106,7 +115,7 @@ def state_to_result(state: AgentState) -> dict[str, Any]:
     return {
         "detected_intent": state.get("detected_intent"),
         "confidence_score": state.get("confidence_score"),
-        "assigned_agent": assigned_agent.value if assigned_agent is not None else None,
+        "assigned_agent": assigned_agent.value if assigned_agent else None,
         "escalated": state.get("escalated", False),
         "routing_reason": state.get("routing_reason"),
         "agent_response": state.get("agent_response"),

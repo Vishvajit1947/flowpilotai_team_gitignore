@@ -70,10 +70,10 @@ Score the confidence that the content's intent is "{intent}" on a scale from 0.0
 - 1.0 = Perfect match, unambiguous
 
 Return ONLY this JSON (no markdown, no explanation):
-{
+{{
   "score": <float between 0.0 and 1.0>,
   "explanation": "<one sentence>"
-}"""
+}}"""
 
 
 # ─── Keyword Pre-Pass ─────────────────────────────────────────────────────────
@@ -190,11 +190,10 @@ async def _gpt4o_score(text: str, intent: str) -> float:
         timeout=10.0,
     )
 
-    raw = response.content
-    if not isinstance(raw, str):
-        raw = str(raw)
+    if not isinstance(response.content, str):
+        return 0.5
 
-    return _parse_score(raw)
+    return _parse_score(response.content)
 
 
 def _parse_score(raw: str) -> float:

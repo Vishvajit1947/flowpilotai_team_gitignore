@@ -1,3 +1,4 @@
+from __future__ import annotations
 import uuid
 from typing import Any, TYPE_CHECKING
 from sqlalchemy import (

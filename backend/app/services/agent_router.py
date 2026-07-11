@@ -83,6 +83,18 @@ def route(
     # Primary intent → agent mapping
     primary_agent = INTENT_TO_AGENT.get(intent, AgentType.executive)
 
+    # Unknown intent always goes to executive
+    if intent == "unknown":
+        decision = RoutingDecision(
+            agent_type=AgentType.executive,
+            escalated=False,
+            original_intent=intent,
+            confidence_score=confidence_score,
+            reason="Unknown intent routed to executive agent",
+        )
+        _log_decision(decision)
+        return decision
+
     # Low confidence escalation
     if confidence_score < LOW_CONFIDENCE_THRESHOLD:
         decision = RoutingDecision(
@@ -94,18 +106,6 @@ def route(
                 f"Low confidence ({confidence_score:.2f}) for intent '{intent}'. "
                 f"Escalated to executive agent for review."
             ),
-        )
-        _log_decision(decision)
-        return decision
-
-    # Unknown intent always goes to executive
-    if intent == "unknown":
-        decision = RoutingDecision(
-            agent_type=AgentType.executive,
-            escalated=False,
-            original_intent=intent,
-            confidence_score=confidence_score,
-            reason="Unknown intent routed to executive agent",
         )
         _log_decision(decision)
         return decision
