@@ -4,7 +4,7 @@ import { SubmissionHistory } from '@/components/inbox/SubmissionHistory';
 
 export default function InboxPage() {
   return (
-    <div className="space-y-4 lg:space-y-6 lg:h-[calc(100vh-8.25rem)] lg:flex lg:flex-col lg:overflow-hidden">
+    <div className="space-y-4 lg:space-y-6 lg:h-full lg:flex lg:flex-col lg:overflow-hidden">
       <div className="flex-shrink-0">
         <h1 className="text-3xl font-bold tracking-tight">AI Inbox</h1>
         <p className="text-muted-foreground mt-1 text-sm">

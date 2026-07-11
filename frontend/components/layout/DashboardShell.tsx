@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/store/ui';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
@@ -10,6 +11,8 @@ import { cn } from '@/lib/utils';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, sidebarCollapsed, setSidebarOpen } = useUIStore();
+  const pathname = usePathname();
+  const isInboxPage = pathname === '/dashboard/inbox';
 
   // Close mobile sidebar on resize to desktop
   useEffect(() => {
@@ -55,15 +58,22 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <Header />
         <main
           id="main-content"
-          className="flex-1 overflow-y-auto p-6"
+          className={cn(
+            'flex-1 p-6',
+            isInboxPage
+              ? 'flex flex-col min-h-0 overflow-hidden'
+              : 'overflow-y-auto pb-16 md:pb-24',
+          )}
           tabIndex={-1}
         >
-          <div className="mb-6">
+          <div className={cn("flex-shrink-0", isInboxPage ? "mb-4" : "mb-6")}>
             <AdminBanner />
           </div>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <div className={cn("flex-1 min-h-0", isInboxPage && "flex flex-col overflow-hidden")}>
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </div>
         </main>
       </div>
     </div>
