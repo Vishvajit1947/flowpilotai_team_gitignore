@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Any, Optional, List
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 from app.db.models.inbox import AgentType, WorkflowStatus
 
 
@@ -9,27 +9,27 @@ class InboxSubmitRequest(BaseModel):
     content: str
     file_url: Optional[str] = None
 
-    @field_validator("content")
-    @classmethod
-    def validate_content(cls, v: str) -> str:
-        v = v.strip()
-        if len(v) < 3:
-            raise ValueError("Content must be at least 3 characters")
-        if len(v) > 5000:
-            raise ValueError("Content must be at most 5000 characters")
-        return v
+    @model_validator(mode="after")
+    def validate_request(self) -> "InboxSubmitRequest":
+        content_val = (self.content or "").strip()
+        file_url_val = (self.file_url or "").strip()
 
-    @field_validator("file_url")
-    @classmethod
-    def validate_file_url(cls, v: Optional[str]) -> Optional[str]:
-        if v is None:
-            return None
-        v = v.strip()
-        if not v.startswith("https://"):
-            raise ValueError("file_url must be an HTTPS URL")
-        if len(v) > 2048:
-            raise ValueError("file_url must be at most 2048 characters")
-        return v
+        if not file_url_val and len(content_val) < 3:
+            raise ValueError("Content must be at least 3 characters when no file is attached")
+        
+        if len(content_val) > 5000:
+            raise ValueError("Content must be at most 5000 characters")
+
+        if file_url_val:
+            if not file_url_val.startswith("https://"):
+                raise ValueError("file_url must be an HTTPS URL")
+            if len(file_url_val) > 2048:
+                raise ValueError("file_url must be at most 2048 characters")
+
+        self.content = content_val
+        self.file_url = file_url_val if file_url_val else None
+        return self
+
 
 
 class InboxSubmissionResponse(BaseModel):
