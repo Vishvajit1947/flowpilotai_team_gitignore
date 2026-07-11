@@ -16,6 +16,7 @@ interface AuthActions {
   logout: () => void;
   clearError: () => void;
   fetchCurrentUser: () => Promise<void>;
+  updateUser: (updatedUser: Partial<User>) => void;
 }
 
 export type AuthStore = AuthState & AuthActions;
@@ -84,6 +85,18 @@ export const useAuthStore = create<AuthStore>()(
         } catch {
           set({ user: null, token: null });
         }
+      },
+
+      updateUser: (updatedUser: Partial<User>) => {
+        set((state) => {
+          if (!state.user) return state;
+          return {
+            user: {
+              ...state.user,
+              ...updatedUser,
+            },
+          };
+        });
       },
     }),
     {

@@ -12,6 +12,7 @@ interface InboxActions {
   updateSubmission: (s: InboxSubmission) => void;
   setCurrentSubmission: (s: InboxSubmission | null) => void;
   setPolling: (v: boolean) => void;
+  toggleActionItem: (submissionId: string, itemIndex: number) => void;
 }
 
 export const useInboxStore = create<InboxState & InboxActions>((set) => ({
@@ -29,4 +30,35 @@ export const useInboxStore = create<InboxState & InboxActions>((set) => ({
     })),
   setCurrentSubmission: (s) => set({ currentSubmission: s }),
   setPolling: (v) => set({ isPolling: v }),
+
+  toggleActionItem: (submissionId, itemIndex) =>
+    set((state) => {
+      const updateSub = (sub: InboxSubmission): InboxSubmission => {
+        if (sub.id !== submissionId || !sub.result) return sub;
+        const agentResponse = sub.result.agent_response;
+        if (!agentResponse) return sub;
+        
+        const currentCompleted = agentResponse.completed_action_items || [];
+        const completed = currentCompleted.includes(itemIndex)
+          ? currentCompleted.filter((i: number) => i !== itemIndex)
+          : [...currentCompleted, itemIndex];
+          
+        return {
+          ...sub,
+          result: {
+            ...sub.result,
+            agent_response: {
+              ...agentResponse,
+              completed_action_items: completed,
+            },
+          },
+        };
+      };
+
+      return {
+        submissions: state.submissions.map(updateSub),
+        currentSubmission: state.currentSubmission ? updateSub(state.currentSubmission) : null,
+      };
+    }),
 }));
+

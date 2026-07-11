@@ -22,5 +22,6 @@ export function useAuth() {
     register,
     logout,
     clearError,
+    updateUser: useAuthStore((s) => s.updateUser),
   };
 }
