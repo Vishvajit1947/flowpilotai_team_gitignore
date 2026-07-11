@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8 pb-16 md:pb-24 animate-in fade-in-50 duration-300">
+    <div className="space-y-8 pb-4 animate-in fade-in-50 duration-300">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
         <p className="text-muted-foreground mt-1.5">
