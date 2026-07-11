@@ -16,8 +16,9 @@ config.set_main_option(
     "sqlalchemy.url",
     settings.DATABASE_URL.replace("postgres://", "postgresql+asyncpg://").replace(
         "postgresql://", "postgresql+asyncpg://"
-    ),
+    ).replace("%", "%%"),
 )
+
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

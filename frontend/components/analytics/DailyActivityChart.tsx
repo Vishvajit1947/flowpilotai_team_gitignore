@@ -43,7 +43,7 @@ export function DailyActivityChart({ days, onDaysChange }: DailyActivityChartPro
             ))}
           </div>
         </div>
-      </Header>
+      </CardHeader>
       <CardContent>
         {error ? (
           <div className="flex flex-col items-center gap-3 py-8">
