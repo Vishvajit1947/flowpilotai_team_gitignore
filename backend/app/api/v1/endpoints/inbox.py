@@ -49,11 +49,16 @@ async def upload_file(
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(status_code=413, detail="File exceeds 10 MB limit.")
 
-    import httpx
-
     file_ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "bin"
     file_name = f"{_uuid.uuid4().hex}.{file_ext}"
     storage_path = f"uploads/{current_user.id}/{file_name}"
+
+    if settings.is_mock_mode:
+        mock_url = "https://images.unsplash.com/photo-1557804506-669a67965ba0" if "image" in (file.content_type or "") else "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        logger.info("file_uploaded_mock", user_id=str(current_user.id), path=storage_path)
+        return {"url": mock_url, "path": storage_path}
+
+    import httpx
 
     supabase_url = settings.SUPABASE_URL.rstrip("/")
     supabase_key = settings.SUPABASE_SERVICE_KEY
