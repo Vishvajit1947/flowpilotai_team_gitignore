@@ -17,7 +17,6 @@ export function FileUpload({ onUploadComplete, onRemove, disabled }: FileUploadP
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [uploadedUrl, setUploadedUrl] = React.useState<string | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +47,6 @@ export function FileUpload({ onUploadComplete, onRemove, disabled }: FileUploadP
       });
 
       const url = res.data.url;
-      setUploadedUrl(url);
       onUploadComplete(url);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'Upload failed.';
@@ -61,7 +59,6 @@ export function FileUpload({ onUploadComplete, onRemove, disabled }: FileUploadP
 
   const handleRemove = () => {
     setSelectedFile(null);
-    setUploadedUrl(null);
     setError(null);
     if (inputRef.current) inputRef.current.value = '';
     onRemove();

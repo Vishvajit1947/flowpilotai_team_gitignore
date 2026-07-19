@@ -5,7 +5,7 @@ import { useInboxStore } from '@/store/inbox';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Clock, Brain, Check, Square, CheckSquare, Sparkles, Building, Mail, User, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Brain, Square, CheckSquare, Sparkles, Building, Mail, User, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDateTime } from '@/lib/utils';
 import { WorkflowViewer } from '@/components/workflow/WorkflowViewer';
@@ -33,6 +33,7 @@ export function ResultPanel() {
   const toggleActionItem = useInboxStore((s) => s.toggleActionItem);
 
   // Render styled structured data based on agent type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderStructuredData = (agentType: string, data: Record<string, any>) => {
     if (!data) return null;
 
