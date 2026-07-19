@@ -145,9 +145,9 @@ async def _generate_executive_brief(
                     "Pricing strategy directly influences gross profit, whereas administrative efficiency determines net profit."
                 ],
                 "recommended_decisions": {
-                    "decision": "Structure cost allocations by separating COGS and SG&A in bookkeeping",
-                    "impact": "Improves financial decision visibility",
-                    "urgency": "medium"
+                    "immediate": ["Structure cost allocations by separating COGS and SG&A in bookkeeping"],
+                    "short_term": ["Audit administrative and operational overhead"],
+                    "long_term": ["Establish fixed margin thresholds for new pricing tiers"]
                 },
                 "action_items": [
                     "Perform comparative margin analysis",
@@ -175,9 +175,9 @@ async def _generate_executive_brief(
                 "Verify system routing rules if this topic should have matched customer_support, sales_lead, or invoice_processing."
             ],
             "recommended_decisions": {
-                "decision": "Upgrade system with a live LLM API key",
-                "impact": "Enables fully cognitive routing and synthesis",
-                "urgency": "low"
+                "immediate": ["Upgrade system with a live OpenAI API key"],
+                "short_term": ["Evaluate custom system prompts"],
+                "long_term": ["Integrate Redis caching layer"]
             },
             "action_items": [
                 "Insert OpenAI API key in Render settings",
@@ -188,7 +188,7 @@ async def _generate_executive_brief(
             "confidence": 0.9
         }
 
-    llm = ChatOpenAI(
+    llm: Any = ChatOpenAI(
         model="gpt-4o",
         temperature=0.2,
         openai_api_key=settings.OPENAI_API_KEY,  # type: ignore[call-arg]
@@ -210,6 +210,7 @@ async def _generate_executive_brief(
 
     raw = response.content
     if not isinstance(raw, str):
+        
         raw = str(raw)
 
     try:

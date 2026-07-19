@@ -172,7 +172,7 @@ async def _extract_invoice_data(text: str) -> dict[str, Any]:
             "confidence": 0.95
         }
 
-    llm = ChatOpenAI(
+    llm: Any = ChatOpenAI(
         model="gpt-4o",
         temperature=0.0,
         openai_api_key=settings.OPENAI_API_KEY,  # type: ignore[call-arg]
