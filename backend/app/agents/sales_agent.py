@@ -120,21 +120,50 @@ async def _extract_sales_data(text: str) -> dict[str, Any]:
     """Call GPT-4o to extract structured sales data."""
     is_mock = settings.is_mock_mode
     if is_mock:
+        text_lower = text.lower()
+        import re
+        email_match = re.search(r'[\w.-]+@[\w.-]+\.\w+', text_lower)
+        email = email_match.group(0) if email_match else "sjenkins@acmecorp.com"
+        
+        company = "Acme Corporation"
+        if "acme" in text_lower:
+            company = "Acme Corporation"
+        elif "globex" in text_lower:
+            company = "Globex Corp"
+        elif "hooli" in text_lower:
+            company = "Hooli"
+        elif "stark" in text_lower:
+            company = "Stark Industries"
+        elif "meta" in text_lower:
+            company = "Meta Platforms"
+        elif email_match:
+            # guess company from email domain
+            domain = email.split('@')[1].split('.')[0]
+            company = domain.capitalize()
+            
+        name = "Sarah Jenkins"
+        if email_match:
+            parts = email.split('@')[0].split('.')
+            if len(parts) >= 2:
+                name = f"{parts[0].capitalize()} {parts[1].capitalize()}"
+            else:
+                name = parts[0].capitalize()
+                
         return {
-            "company_name": "Acme Corporation",
-            "contact_name": "Sarah Jenkins",
-            "contact_email": "sjenkins@acmecorp.com",
-            "deal_size_estimate": "$25,000",
+            "company_name": company,
+            "contact_name": name,
+            "contact_email": email,
+            "deal_size_estimate": "$25,000" if "large" in text_lower or "enterprise" in text_lower or "licenses" in text_lower else "$5,000",
             "product_interest": "Developer License Subscription",
-            "urgency": "hot",
-            "lead_score": 85,
-            "pain_points": ["Needs enterprise security", "Requires Google OAuth / SSO integration"],
+            "urgency": "hot" if "urgent" in text_lower or "soon" in text_lower or "asap" in text_lower else "medium",
+            "lead_score": 90 if "buy" in text_lower or "pricing" in text_lower or "quote" in text_lower else 70,
+            "pain_points": ["Looking for standard system capabilities", "Requires integration support"],
             "action_items": [
-                "Schedule a 30-minute product demonstration",
-                "Draft and send Enterprise Pricing Proposal",
-                "Introduce solutions architect to discuss SSO features"
+                f"Schedule a 30-minute product demonstration with {name}",
+                f"Draft and send custom pricing proposal for {company}",
+                "Log sales inquiry in CRM tracker"
             ],
-            "summary": "High-intent enterprise sales lead requesting demo and pricing for 150 annual developer licenses.",
+            "summary": f"High-intent sales lead from {name} ({company}) requesting details.",
             "follow_up_timeline": "Within 24 hours",
             "confidence": 0.95
         }

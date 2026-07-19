@@ -106,23 +106,38 @@ class ChatOpenAI:
 async def _analyze_support_issue(text: str) -> dict[str, Any]:
     is_mock = settings.is_mock_mode
     if is_mock:
+        text_lower = text.lower()
+        
+        area = "general"
+        if "login" in text_lower or "oauth" in text_lower or "auth" in text_lower or "sign-in" in text_lower:
+            area = "authentication"
+        elif "slow" in text_lower or "latency" in text_lower or "performance" in text_lower:
+            area = "performance"
+        elif "payment" in text_lower or "billing" in text_lower or "invoice" in text_lower:
+            area = "billing"
+            
+        severity = "medium"
+        if any(k in text_lower for k in ["broken", "crash", "blocking", "urgent", "critical", "down", "error"]):
+            severity = "critical"
+            
+        issue_type = "bug" if any(k in text_lower for k in ["bug", "error", "broken", "crash", "issue"]) else "inquiry"
+        
         return {
-            "issue_type": "bug",
-            "severity": "critical",
-            "product_area": "authentication",
-            "customer_impact": "Blocking entire sales operations team from accessing their records",
-            "root_cause_hypothesis": "Potential Google OAuth redirect loop crash after redirect callback failure",
-            "response_draft": "Thank you for reaching out. We have registered this as a critical authentication issue. Our engineering team is actively investigating the Google OAuth redirect loop, and we expect a fix to be deployed within 1 hour. We apologize for the inconvenience and will update you shortly.",
-            "internal_notes": "OAuth callback is throwing 500 server error. Triage logs on /auth/google/callback endpoint immediately.",
+            "issue_type": issue_type,
+            "severity": severity,
+            "product_area": area,
+            "customer_impact": "Disrupting client critical business workflows" if severity == "critical" else "Minor usability impact",
+            "root_cause_hypothesis": f"Simulated issue analysis for {area} category in mock mode.",
+            "response_draft": f"Thank you for contacting support. We have triaged this as a {severity} level {area} {issue_type}. Our engineering team is looking into this and will provide updates shortly.",
+            "internal_notes": f"Verify {area} status logs for matching errors reported in query.",
             "action_items": [
                 "Inspect callback server logs",
-                "Trace auth redirection route",
-                "Verify Google OAuth credentials",
-                "Draft post-incident review summary"
+                "Trace system redirection routes",
+                "Draft customer support update message"
             ],
-            "sla_recommendation": "1 hour",
-            "escalate_to_engineering": True,
-            "summary": "Critical Google OAuth sign-in crash blocking user access. Incident response active.",
+            "sla_recommendation": "1 hour" if severity == "critical" else "24 hours",
+            "escalate_to_engineering": severity == "critical",
+            "summary": f"Mock support request related to {area} with {severity} severity: '{text[:60]}...'",
             "confidence": 0.95
         }
 

@@ -114,40 +114,61 @@ class ChatOpenAI:
 async def _extract_invoice_data(text: str) -> dict[str, Any]:
     is_mock = settings.is_mock_mode
     if is_mock:
+        text_lower = text.lower()
+        import re
+        invoice_num_match = re.search(r'(?:inv-|invoice\s*#?\s*)(\w+\d+[\w\d-]*)', text_lower)
+        invoice_num = invoice_num_match.group(1).upper() if invoice_num_match else "INV-2026-9081"
+        
+        amount_match = re.search(r'\$?(\d+(?:,\d{3})*(?:\.\d{2})?)', text_lower)
+        total_amount = 1728.00
+        if amount_match:
+            try:
+                total_amount = float(amount_match.group(1).replace(",", ""))
+            except ValueError:
+                pass
+        subtotal = round(total_amount / 1.08, 2)
+        tax = round(total_amount - subtotal, 2)
+        
+        vendor = "Cloudflare, Inc."
+        if "cloudflare" in text_lower:
+            vendor = "Cloudflare, Inc."
+        elif "amazon" in text_lower or "aws" in text_lower:
+            vendor = "Amazon Web Services"
+        elif "google" in text_lower or "gcp" in text_lower:
+            vendor = "Google Cloud Platform"
+        elif "acme" in text_lower:
+            vendor = "Acme Corp"
+        elif "microsoft" in text_lower or "azure" in text_lower:
+            vendor = "Microsoft Corp"
+        
         return {
             "document_type": "invoice",
-            "vendor_name": "Cloudflare, Inc.",
-            "vendor_contact": "payments@cloudflare.com",
-            "invoice_number": "INV-2026-9081",
+            "vendor_name": vendor,
+            "vendor_contact": f"payments@{vendor.lower().replace(' ', '').replace(',', '')}.com",
+            "invoice_number": invoice_num,
             "invoice_date": "2026-07-11",
             "due_date": "2026-07-25",
             "payment_terms": "Net 14",
             "currency": "USD",
-            "subtotal": 1600.0,
-            "tax_amount": 128.0,
-            "total_amount": 1728.0,
+            "subtotal": subtotal,
+            "tax_amount": tax,
+            "total_amount": total_amount,
             "line_items": [
                 {
-                    "description": "Enterprise Cloud Security Services - July 2026",
+                    "description": f"Subscription Services for {vendor}",
                     "quantity": 1,
-                    "unit_price": 1250.0,
-                    "total": 1250.0
-                },
-                {
-                    "description": "Advanced DDoS Shielding & CDN",
-                    "quantity": 1,
-                    "unit_price": 350.0,
-                    "total": 350.0
+                    "unit_price": subtotal,
+                    "total": subtotal
                 }
             ],
             "payment_recommendation": "approve",
             "anomalies": [],
             "action_items": [
-                "Verify Cloudflare payment banking details match internal records",
-                "Log invoice INV-2026-9081 in accounting ERP ledger",
-                "Approve payment of $1,728.00 before due date July 25, 2026"
+                f"Verify {vendor} payment banking details match internal records",
+                f"Log invoice {invoice_num} in accounting ERP ledger",
+                f"Approve payment of ${total_amount:,.2f} before due date July 25, 2026"
             ],
-            "summary": "Cloudflare invoice INV-2026-9081 for security services and CDN shielding totaling $1,728.00. No anomalies detected.",
+            "summary": f"Cloudflare invoice {invoice_num} for security services and CDN shielding totaling ${total_amount:,.2f}. No anomalies detected." if vendor == "Cloudflare, Inc." else f"Simulated {vendor} invoice {invoice_num} totaling ${total_amount:,.2f}. No anomalies detected.",
             "confidence": 0.95
         }
 

@@ -128,31 +128,63 @@ async def _generate_executive_brief(
 ) -> dict[str, Any]:
     is_mock = settings.is_mock_mode
     if is_mock:
+        text_lower = text.lower()
+        if "gross profit" in text_lower or "net profit" in text_lower or "difference between" in text_lower:
+            return {
+                "content_type": "Financial Query Analysis",
+                "executive_summary": "Analysis of the distinction between Gross Profit and Net Profit. Gross Profit represents revenue minus Cost of Goods Sold (COGS), representing manufacturing efficiency. Net Profit (bottom line) is the final profit after deducting all operating expenses, interest, taxes, and other overheads.",
+                "key_themes": ["Gross Margin", "Net Margin", "Operational Overhead", "Taxes & Interest"],
+                "key_metrics": [
+                    {"metric": "Gross Profit formula", "value": "Revenue - COGS"},
+                    {"metric": "Net Profit formula", "value": "Gross Profit - All Expenses"},
+                    {"metric": "Gross Margin focus", "value": "Direct cost control"},
+                    {"metric": "Net Margin focus", "value": "Overhead optimization"}
+                ],
+                "strategic_implications": [
+                    "High gross margin but low net margin indicates high fixed operational expenses or debt servicing costs.",
+                    "Pricing strategy directly influences gross profit, whereas administrative efficiency determines net profit."
+                ],
+                "recommended_decisions": {
+                    "decision": "Structure cost allocations by separating COGS and SG&A in bookkeeping",
+                    "impact": "Improves financial decision visibility",
+                    "urgency": "medium"
+                },
+                "action_items": [
+                    "Perform comparative margin analysis",
+                    "Audit operating expenses for redundancies",
+                    "Update budget projections for next quarter"
+                ],
+                "priority": "medium",
+                "confidence": 0.95
+            }
+        
+        # Fallback to general dynamic parser
+        clean_text = text.strip()
+        summary_topic = clean_text[:60] + "..." if len(clean_text) > 60 else clean_text
         return {
-            "content_type": "Q2 Operations Report",
-            "executive_summary": "Q2 operations show solid 14% QoQ revenue growth reaching $1.2M ARR, and churn drop to 2.1%. However, infrastructure costs rose 28% due to LLM API usage. Strategic focus is required to optimize token caching and explore self-hosting options.",
-            "key_themes": ["Revenue Growth", "Churn Reduction", "Infrastructure Cost Inflation"],
+            "content_type": "Ad-hoc Request Review",
+            "executive_summary": f"Audit of the query: '{summary_topic}'. Under mock mode, this request was routed to the Executive Agent for audit. The system simulated intent classification and returned structured recommendations based on this query.",
+            "key_themes": ["Mock Processing", "Routing Audit", "System Simulation"],
             "key_metrics": [
-                {"metric": "QoQ Revenue Growth", "value": "14%"},
-                {"metric": "ARR", "value": "$1.2M"},
-                {"metric": "Churn Rate", "value": "2.1%"},
-                {"metric": "Infrastructure Cost Increase", "value": "28%"}
+                {"metric": "Query Length", "value": f"{len(text)} chars"},
+                {"metric": "Route Status", "value": "Audited"},
+                {"metric": "Execution Mode", "value": "Mock API"}
             ],
             "strategic_implications": [
-                "LLM cost inflation threatens gross margins unless caching optimizations are implemented.",
-                "Automated support agent queues are highly successful, validating the AI agent strategy."
+                "Deploying a production API key will replace this simulated output with live LLM intelligence.",
+                "Verify system routing rules if this topic should have matched customer_support, sales_lead, or invoice_processing."
             ],
             "recommended_decisions": {
-                "decision": "Optimize LLM token caching & evaluate self-hosting open-source LLMs",
-                "impact": "Reduces API costs by estimated 30-40% by Q4",
-                "urgency": "high"
+                "decision": "Upgrade system with a live LLM API key",
+                "impact": "Enables fully cognitive routing and synthesis",
+                "urgency": "low"
             },
             "action_items": [
-                "Deploy Redis token caching layer in production API gateway",
-                "Benchmark Llama-3 self-hosting costs vs GPT-4o API billing",
-                "Schedule Q2 performance review meeting with engineering leadership"
+                "Insert OpenAI API key in Render settings",
+                "Add test cases for custom user prompts",
+                "Evaluate custom system prompts under live conditions"
             ],
-            "priority": "high",
+            "priority": "low",
             "confidence": 0.9
         }
 
