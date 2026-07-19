@@ -165,9 +165,9 @@ export default function LandingPage() {
                 </Button>
                 <Button
                   asChild
-                  variant="outline"
+                  variant="ghost"
                   size="lg"
-                  className="text-base px-8 border-[#c1ccd6] text-[#001e2b] hover:bg-[#f9fbfa] w-full sm:w-auto"
+                  className="text-base px-8 border border-[#c1ccd6] text-[#001e2b] hover:bg-[#f9fbfa] w-full sm:w-auto"
                 >
                   <Link href={'/login' as Route}>Sign In</Link>
                 </Button>
